@@ -130,3 +130,67 @@ func main() {
 ### Notes: 
 
 Not everything was clear, but it's nice to practice Go a bit every day. I feel like I am making some progress, but I still have some issues with logic and resolving problems in the code. If you read this and have an idea about how to resolve these issues, do not hesitate to contact me on [bluesky](https://bsky.app/profile/togido.xyz)!
+
+
+## Assignment 2.1
+
+Add `map` and `mapb` commands to show the next 20 locations and the previous 20 locations, respectively.
+
+```go
+var index int32
+
+func CommandMap() error {
+    if index == 0 {
+        index = 20
+    } else {
+        index += 20
+    }
+    url := fmt.Sprintf("https://pokeapi.co/api/v2/location-area?limit=%v", index)
+    res, err := http.Get(url)
+    if err != nil {
+        return fmt.Errorf("sorry, couldn't resolve the URL: %v", err)
+    }
+    defer res.Body.Close()
+
+    data, err := io.ReadAll(res.Body)
+    if err != nil {
+        return fmt.Errorf("couldn't get the data: %v", err)
+    }
+    var locationResponse LocationResponse
+
+    if err := json.Unmarshal(data, &locationResponse); err != nil {
+        return fmt.Errorf("sorry, couldn't resolve the data: %v", err)
+    }
+    for _, value := range locationResponse.Results {
+        fmt.Printf("%s\n", value.Name)
+    }
+
+    return nil
+}
+
+func CommandMapB() error {
+    if index < 20 {
+        fmt.Println("You're on the first page")
+    } else {
+        index -= 40
+        CommandMap()
+    }
+    return nil
+}
+
+// types.go
+
+type Location struct {
+    Name string `json:"name"`
+    URL  string `json:"url"`
+}
+
+type LocationResponse struct {
+    Results []Location `json:"results"`
+}
+
+// I have also added the new commands in help.go and main.go. You can check this on GitHub!
+```
+
+### Notes:
+It was nice to redo some HTTP client tasks in Golang. Thankfully, I have some cheatsheets from [boot.dev](boot.dev) about how to deal with data from requests. However, I also feel less confident because I had to use AI for some questions, but I mostly did it by myself. Also, because I didn't read the assignment before starting (that's my main issue, I would say haha), I didn't see that they gave some tips like using [JSON-to-GO](https://mholt.github.io/json-to-go/), which generates a type automatically from the JSON.
