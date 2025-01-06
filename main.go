@@ -25,6 +25,16 @@ func main() {
 			Description: "Displays a help message",
 			Callback:    callBackHelp,
 		},
+		"map": {
+			Name:        "map",
+			Description: "Displays 20 names of locations",
+			Callback:    utils.CommandMap,
+		},
+		"mapb": {
+			Name:        "mapb",
+			Description: "Displays the 20 previous names of locations",
+			Callback:    utils.CommandMapB,
+		},
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
