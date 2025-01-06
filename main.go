@@ -8,18 +8,22 @@ import (
 	"github.com/toine08/pokedexcli/utils"
 )
 
-type cliCommand struct {
-	name        string
-	description string
-	callback    func() error
-}
-
 func main() {
-	commands := map[string]cliCommand{
+	var commands map[string]utils.CliCommand
+	callBackHelp := func() error {
+		return utils.CommandHelp(commands)
+	}
+
+	commands = map[string]utils.CliCommand{
 		"exit": {
-			name:        "exit",
-			description: "Exit the program",
-			callback:    utils.CommandExit,
+			Name:        "exit",
+			Description: "Exit the program",
+			Callback:    utils.CommandExit,
+		},
+		"help": {
+			Name:        "help",
+			Description: "Displays a help message",
+			Callback:    callBackHelp,
 		},
 	}
 
@@ -31,7 +35,7 @@ func main() {
 		}
 		input := scanner.Text()
 		if cmd, exists := commands[input]; exists {
-			if err := cmd.callback(); err != nil {
+			if err := cmd.Callback(); err != nil {
 				fmt.Println("Error: ", err)
 			}
 		} else {
