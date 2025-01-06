@@ -80,4 +80,53 @@ func main() {
 
 This one was a bit challenging because I wasn't familiar with the `bufio` package, and the documentation wasn't very clear to me. However, with the help of the chatbox, I was able to understand it better. Once I grasped how to use it, the logic was straightforward to implement.
 
+## Assignment 1.5
 
+Implementation of two commands:
+- `help`: prints a help message describing how to use the REPL
+- `exit`: exits the program
+
+```go
+func CommandHelp(commands map[string]CliCommand) error {
+    fmt.Println("Welcome to the Pokedex!")
+    fmt.Printf("Usage:\n\n")
+    commandOrder := []string{"help", "exit"}
+
+    for _, cmdName := range commandOrder {
+        cmd := commands[cmdName]
+        fmt.Printf("%s: %s\n", cmd.Name, cmd.Description)
+    }
+    return nil
+}
+
+func CommandExit() error {
+    fmt.Println("Closing the Pokedex... Goodbye!")
+    os.Exit(0)
+    return nil
+}
+
+func main() {
+    var commands map[string]utils.CliCommand
+    callBackHelp := func() error {
+        return utils.CommandHelp(commands)
+    }
+
+    commands = map[string]utils.CliCommand{
+        "exit": {
+            Name:        "exit",
+            Description: "Exit the program",
+            Callback:    utils.CommandExit,
+        },
+        "help": {
+            Name:        "help",
+            Description: "Displays a help message",
+            Callback:    callBackHelp,
+        },
+    }
+//..rest of the code...    
+}
+```
+
+### Notes: 
+
+Not everything was clear, but it's nice to practice Go a bit every day. I feel like I am making some progress, but I still have some issues with logic and resolving problems in the code. If you read this and have an idea about how to resolve these issues, do not hesitate to contact me on [bluesky](https://bsky.app/profile/togido.xyz)!
