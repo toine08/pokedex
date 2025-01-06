@@ -5,7 +5,7 @@ import "fmt"
 func CommandHelp(commands map[string]CliCommand) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Printf("Usage:\n\n")
-	commandOrder := []string{"help", "exit"}
+	commandOrder := []string{"map", "mapb", "help", "exit"}
 
 	for _, cmdName := range commandOrder {
 		cmd := commands[cmdName]
