@@ -56,3 +56,28 @@ unc TestCleanInput(t *testing.T) {
 
 ### Notes:
 Easy, didn't understand everything about the test. When I started learning Go a few years ago, it was with [Learn Go with Tests](https://quii.gitbook.io/learn-go-with-tests), and the tests were done differently, so I was confused. I also had some issues with the function, but yeah, it's just some logic I missed.
+
+
+## Assignment 1.4
+
+Create support for a simple REPL
+
+```go
+func main() {
+	scanner := bufio.NewScanner(os.Stdin)
+	for {
+		fmt.Printf("Pokedex > ")
+		if scanner.Scan() {
+			input := scanner.Text()
+			slicedInput := utils.CleanInput(input)
+			fmt.Printf("Your command was: %s\n", slicedInput[0])
+		}
+	}
+}
+```
+
+### Notes:
+
+This one was a bit challenging because I wasn't familiar with the `bufio` package, and the documentation wasn't very clear to me. However, with the help of the chatbox, I was able to understand it better. Once I grasped how to use it, the logic was straightforward to implement.
+
+
