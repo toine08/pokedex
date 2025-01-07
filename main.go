@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/toine08/pokedexcli/utils"
+	utils "github.com/toine08/pokedexcli/internal"
 )
 
 func main() {
+
 	var commands map[string]utils.CliCommand
 	callBackHelp := func() error {
 		return utils.CommandHelp(commands)

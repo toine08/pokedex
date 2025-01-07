@@ -1,9 +1,7 @@
-package main
+package utils
 
 import (
 	"testing"
-
-	"github.com/toine08/pokedexcli/utils"
 )
 
 func TestCleanInput(t *testing.T) {
@@ -25,7 +23,7 @@ func TestCleanInput(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		actual := utils.CleanInput(c.input) // note the capital letter for exported function
+		actual := CleanInput(c.input) // note the capital letter for exported function
 		if len(actual) != len(c.expected) {
 			t.Errorf("Length of slices are not matching")
 			continue

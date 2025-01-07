@@ -1,13 +1,21 @@
 package utils
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
 
-var index int32
+var (
+	index int32
+	cache *Cache // Global cache instance
+)
+
+func init() {
+	// Initialize the global cache with a 5-second interval for reaping
+	cache = NewCache(5 * time.Second)
+}
 
 func CommandMap() error {
 	if index == 0 {
@@ -15,7 +23,14 @@ func CommandMap() error {
 	} else {
 		index += 20
 	}
-	url := fmt.Sprintf("https://pokeapi.co/api/v2/location-area?limit=%v", index)
+
+	baseUrl := "https://pokeapi.co/api/v2/location-area"
+	url := fmt.Sprintf("%s?limit=%v", baseUrl, index)
+
+	if data, ok := cache.Get(url); ok {
+		return processData(data)
+	}
+
 	res, err := http.Get(url)
 	if err != nil {
 		return fmt.Errorf("sorry couldn't resolve the url: %v", err)
@@ -26,16 +41,9 @@ func CommandMap() error {
 	if err != nil {
 		return fmt.Errorf("couldn't get the data: %v", err)
 	}
-	var locationResponse LocationResponse
+	cache.Add(url, data)
 
-	if err := json.Unmarshal(data, &locationResponse); err != nil {
-		return fmt.Errorf("sorry couldn't resolve the data: %v", err)
-	}
-	for _, value := range locationResponse.Results {
-		fmt.Printf("%s\n", value.Name)
-	}
-
-	return nil
+	return processData(data)
 }
 func CommandMapB() error {
 	if index < 20 {

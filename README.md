@@ -194,3 +194,101 @@ type LocationResponse struct {
 
 ### Notes:
 It was nice to redo some HTTP client tasks in Golang. Thankfully, I have some cheatsheets from [boot.dev](boot.dev) about how to deal with data from requests. However, I also feel less confident because I had to use AI for some questions, but I mostly did it by myself. Also, because I didn't read the assignment before starting (that's my main issue, I would say haha), I didn't see that they gave some tips like using [JSON-to-GO](https://mholt.github.io/json-to-go/), which generates a type automatically from the JSON.
+
+
+## Assignement 2.2
+
+Add cache functionnalities
+
+```go
+type CacheEntry struct {
+	CreatedAt time.Time
+	Val       []byte
+}
+
+type Cache struct {
+	Mu    *sync.Mutex
+	Cache map[string]CacheEntry
+}
+
+func NewCache(interval time.Duration) *Cache {
+	cache := &Cache{ // Assuming you have a map
+		Mu:    &sync.Mutex{},               // Proper initialization of mutex as necessary
+		Cache: make(map[string]CacheEntry), // Initialize the map
+	}
+	go cache.reapLoop(interval) // Start the reapLoop in a new goroutine
+	return cache
+}
+
+func (c *Cache) Add(key string, val []byte) {
+	c.Mu.Lock()
+	defer c.Mu.Unlock()
+	value := CacheEntry{
+		CreatedAt: time.Now(),
+		Val:       val,
+	}
+	c.Cache[key] = value
+}
+
+func (c *Cache) Get(key string) ([]byte, bool) {
+	c.Mu.Lock()
+	defer c.Mu.Unlock()
+	if cacheEntry, exists := c.Cache[key]; exists {
+		return cacheEntry.Val, true
+	} else {
+		return nil, false
+	}
+}
+
+func (c *Cache) reapLoop(interval time.Duration) {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		c.Mu.Lock()
+		for key, entry := range c.Cache {
+			if entry.CreatedAt.Add(interval).Before(time.Now()) {
+				delete(c.Cache, key)
+			}
+		}
+		c.Mu.Unlock()
+	}
+}
+
+
+//func commandMap()
+
+func CommandMap() error {
+	if index == 0 {
+		index = 20
+	} else {
+		index += 20
+	}
+
+	baseUrl := "https://pokeapi.co/api/v2/location-area"
+	url := fmt.Sprintf("%s?limit=%v", baseUrl, index)
+
+	if data, ok := cache.Get(url); ok {
+		return processData(data)
+	}
+
+	res, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("sorry couldn't resolve the url: %v", err)
+	}
+	defer res.Body.Close()
+
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		return fmt.Errorf("couldn't get the data: %v", err)
+	}
+	cache.Add(url, data)
+
+	return processData(data)
+}
+```
+
+
+### Notes:
+
+I encountered several challenges while working on this project. The source files were structured differently than I expected, which made it difficult to follow along. I had to refer to multiple sources and use AI to understand and implement certain parts of the code. This experience highlighted I need to improve and coding isn't easy. 
