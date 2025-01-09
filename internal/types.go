@@ -3,7 +3,7 @@ package utils
 type CliCommand struct {
 	Name        string
 	Description string
-	Callback    func() error
+	Callback    func(args ...string) error
 }
 
 type Location struct {
@@ -13,4 +13,12 @@ type Location struct {
 
 type LocationResponse struct {
 	Results []Location `json:"results"`
+}
+
+type LocationArea struct {
+	PokemonEncounters []struct {
+		Pokemon struct {
+			Name string `json:"name"`
+		} `json:"pokemon"`
+	} `json:"pokemon_encounters"`
 }
