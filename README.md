@@ -292,3 +292,142 @@ func CommandMap() error {
 ### Notes:
 
 I encountered several challenges while working on this project. The source files were structured differently than I expected, which made it difficult to follow along. I had to refer to multiple sources and use AI to understand and implement certain parts of the code. This experience highlighted I need to improve and coding isn't easy. 
+
+## Assignment 2.3
+
+Add an explore command. It takes the name of a location area as an argument.
+
+```go
+
+func CommandExplore(zone string) error {
+	baseUrl := "https://pokeapi.co/api/v2/location-area"
+	url := fmt.Sprintf("%s/%s", baseUrl, zone)
+
+	fmt.Printf("Exploring %s...\n", zone)
+
+	if data, ok := cache.Get(url); ok {
+		var locationArea LocationArea
+		if err := json.Unmarshal(data, &locationArea); err != nil {
+			return fmt.Errorf("sorry couldn't resolve the data: %v", err)
+		}
+
+		for _, value := range locationArea.PokemonEncounters {
+			fmt.Printf("- %s\n", value.Pokemon.Name)
+		}
+	}
+
+	res, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("sorry couldn't resolve the url: %v", err)
+	}
+	defer res.Body.Close()
+
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		return fmt.Errorf("couldn't get the data: %v", err)
+	}
+	cache.Add(url, data)
+
+	var locationArea LocationArea
+	if err := json.Unmarshal(data, &locationArea); err != nil {
+		return fmt.Errorf("sorry couldn't resolve the data: %v", err)
+	}
+	for _, value := range locationArea.PokemonEncounters {
+		fmt.Printf("- %s\n", value.Pokemon.Name)
+	}
+	return nil
+}
+
+//I also had to rewrite main.go
+func main() {
+
+	var commands map[string]utils.CliCommand
+	callBackHelp := func() error {
+		return utils.CommandHelp(commands)
+	}
+
+	commands = map[string]utils.CliCommand{
+		"exit": {
+			Name:        "exit",
+			Description: "Exit the program",
+			Callback: func(args ...string) error {
+				if len(args) > 0 {
+					return fmt.Errorf("this command doesn't accept any arguments")
+				}
+				return utils.CommandExit()
+			},
+		},
+		"help": {
+			Name:        "help",
+			Description: "Displays a help message",
+			Callback: func(args ...string) error {
+				if len(args) > 0 {
+					return fmt.Errorf("this command doesn't accept any arguments")
+				}
+				return callBackHelp()
+			},
+		},
+		"map": {
+			Name:        "map",
+			Description: "Displays 20 names of locations",
+			Callback: func(args ...string) error {
+				if len(args) > 0 {
+					return fmt.Errorf("this command doesn't accept any arguments")
+				}
+				return utils.CommandMap()
+			},
+		},
+		"mapb": {
+			Name:        "mapb",
+			Description: "Displays the 20 previous names of locations",
+			Callback: func(args ...string) error {
+				if len(args) > 0 {
+					return fmt.Errorf("this command doesn't accept any arguments")
+				}
+				return utils.CommandMapB()
+			},
+		},
+		"explore": {
+			Name:        "explore",
+			Description: "Explore an area",
+			Callback: func(args ...string) error {
+				if len(args) < 1 {
+					return fmt.Errorf("please provide a zone to explore")
+				}
+				return utils.CommandExplore(args[0])
+			},
+		},
+	}
+
+	scanner := bufio.NewScanner(os.Stdin)
+	for {
+		fmt.Printf("Pokedex > ")
+		if !scanner.Scan() {
+			break
+		}
+		input := scanner.Text()
+
+		// Split input into command and arguments
+		inputParts := strings.Fields(input)
+		if len(inputParts) == 0 {
+			continue // Skip empty input
+		}
+
+		command := inputParts[0] // First part is the command
+		args := inputParts[1:]   // Remaining parts are arguments (if any)
+
+		if cmd, exists := commands[command]; exists {
+			if err := cmd.Callback(args...); err != nil { // Pass args to the callback
+				fmt.Println("Error: ", err)
+			}
+		} else {
+			fmt.Println("Unknown command: ", command)
+		}
+	}
+}
+
+```
+
+### Notes:
+
+I was not feeling well, which made this exercise more challenging. I felt lost at times and realized it might not have been the best idea to tackle this while being sick. I hope to improve my skills over time. After completing this project, I plan to work on building projects without strict guidelines to enhance my learning experience.
