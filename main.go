@@ -67,6 +67,36 @@ func main() {
 				return utils.CommandExplore(args[0])
 			},
 		},
+		"catch": {
+			Name:        "catch",
+			Description: "catch a pokemon",
+			Callback: func(args ...string) error {
+				if len(args) < 1 {
+					return fmt.Errorf("please provide a pokemon to catch")
+				}
+				return utils.CommandCatch(args[0])
+			},
+		},
+		"inspect": {
+			Name:        "inpsect",
+			Description: "inspect a pokemon",
+			Callback: func(args ...string) error {
+				if len(args) < 1 {
+					return fmt.Errorf("please provide a pokemon to inspect")
+				}
+				return utils.CommandInspect(args[0])
+			},
+		},
+		"pokedex": {
+			Name:        "pokedex",
+			Description: "inspect your pokedex",
+			Callback: func(args ...string) error {
+				if len(args) > 0 {
+					return fmt.Errorf("this command doesn't accept any arguments")
+				}
+				return utils.CommandPokedex()
+			},
+		},
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
